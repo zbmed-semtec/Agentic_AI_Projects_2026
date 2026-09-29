@@ -1,0 +1,75 @@
+annotate_model_tasks:
+  description: >
+    The source dataset is starter/data/input/sampled_models.json. At the start of the run, the
+    application copies that source to starter/data/output/sampled_models.json. Read and annotate
+    only the output copy, and ensure every successful write goes to that output file. Never modify
+    the input file. The output file must retain every input record, including records left
+    unresolved. Do not finish until the output JSON exists and contains the complete dataset.
+
+    Review every model record in the dataset; do not stop after the first three records or after
+    finding a few annotations. The reader returns at most three records per call, so exhaustively
+    page through the full dataset using read_sampled_models with only_missing=false and
+    start_index values 0, 3, 6, 9, and so on, increasing by three until a call returns no records.
+    Keep track of the modelIds reviewed and report the total, so no record is accidentally skipped
+    or processed twice. Inspect each record's existing properties as evidence for its ML task,
+    including intendedUse, readme_file, keywords, releaseNotes, trainedOn, citation,
+    referencePublication, and source URLs. If those fields do not directly and unambiguously
+    identify the task, consult a credible linked scholarly publication using
+    search_publications and, when available, read_publication_pdf for a verified direct PDF.
+    A model name, architecture, broad subject, or merely related search result alone is not
+    sufficient evidence. However, do not require a paper to mention the exact uploaded model
+    instance or checkpoint before using it. If a publication search finds a credible paper whose
+    distinctive method/architecture name closely matches the model's distinctive name (including
+    ordinary variants such as capitalization or a suffix like "-bestmodel"), and the paper
+    explicitly describes a task compatible with the model record, treat that as meaningful
+    corroborating evidence even when the paper does not identify this exact instance. For example,
+    a model named "camoFormer-bestmodel" and a credible CamoFormer paper describing camouflaged
+    object segmentation/detection form a strong method-name match; absent contradictory record
+    evidence, this may support the corresponding image-segmentation task at MEDIUM confidence.
+    Do not call it HIGH based only on this indirect match. Record that the paper supports the
+    named method's task, not that it proves the provenance or implementation of the specific
+    uploaded checkpoint. A generic architecture name or a paper that only shares a broad topic
+    does not meet this standard.
+
+    This task is limited to the ML task annotation only. Do not infer, add, or edit any other
+    model properties. Rate confidence with exactly one of three levels: HIGH means direct,
+    unambiguous, consistent evidence identifies the task; MEDIUM means evidence supports a task
+    but has remaining uncertainty; LOW means evidence is insufficient, conflicting, or does not
+    establish an ML task. Before finalizing any preliminary MEDIUM or LOW rating, call
+    search_publications for potential publications about that specific model. Pass the exact
+    modelId to search_publications and search using the modelId plus its distinctive name. Review
+    the returned results, use read_publication_pdf when a credible direct PDF is available, and
+    update the task assessment, confidence, reasoning, and source based on what the search
+    actually found. When a credible paper has a distinctive method-name match and task-compatible
+    description as defined above, promote the preliminary LOW assessment to MEDIUM unless
+    contradictory evidence remains; the lack of a checkpoint-specific mention is not by itself a
+    reason to leave the task unresolved. If no relevant publication or credible name/method match
+    is found, say so in the reasoning/search summary; do not invent a source or treat unrelated
+    results as evidence. Reassess the confidence after searching: it may become HIGH, remain
+    MEDIUM, or remain LOW.
+
+    For each record, set only mlTask to exactly one current Hugging Face task ID from
+    list_huggingface_tasks, and store its confidence, optional source, and reasoning in
+    mlTaskAnnotation. Do not put prose, examples, domains, or multiple IDs in mlTask. Never call
+    write_model_mltask with LOW confidence; LOW annotations must not be added to the records.
+    For MEDIUM, call write_model_mltask only after the model-specific publication search has
+    completed, and provide a concise publication_search_summary describing its findings and
+    effect on the decision. The write tool verifies a completed search for that exact modelId.
+    HIGH does not require a publication search when direct record evidence is sufficient. Supply
+    the exact modelId, task ID, confidence level, reasoning linking evidence to the task, and a
+    source actually consulted when applicable. Existing valid task IDs must never be changed. If
+    a valid ID lacks valid mlTaskAnnotation metadata, add metadata only when evidence supports
+    that same ID. Replace a legacy non-catalog mlTask value only when the intended task is
+    confidently established. Leave a record LOW only when evidence remains insufficient after
+    the required search or indicates that it does not perform an ML task; do not guess merely to
+    fill every value. Finish only after all
+    pages have been reviewed, and report counts and modelIds annotated, already complete, or
+    unresolved, with the reason for each unresolved record.
+  expected_output: >
+    An exhaustive report covering every model record, including the total number reviewed and
+    modelIds. For each annotated record, report its single valid mlTask ID and mlTaskAnnotation
+    confidence level, source when applicable, reasoning, and for MEDIUM confidence the publication
+    search query and findings summary. List records already complete and unresolved records
+    separately, with reasons. Confirm LOW-confidence records were not written, and that no
+    properties other than mlTask and its mlTaskAnnotation metadata were changed.
+  agent: model_task_annotator

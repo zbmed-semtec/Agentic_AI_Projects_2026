@@ -1,0 +1,24 @@
+research_task:
+  description: >
+    Research {topic} using the search_publications tool. Open and read at least
+    one relevant PDF using read_publication_pdf whenever a direct PDF is available.
+    Base factual claims on the records or paper text returned by these tools. Never
+    claim to have searched, opened, or read a source unless the corresponding tool
+    returned it. List key facts, uncertainties, and why each matters to a beginner.
+  expected_output: >
+    Bullet notes with evidence-based facts, uncertainties, and source citations
+    including title, author/date when available, DOI or source URL, and the PDF URL
+    when read. Clearly say when no full text was available.
+  agent: researcher
+
+write_task:
+  description: >
+    Using only the research notes, write a brief on {topic} for a new teammate.
+    Preserve source citations alongside the claims they support. Distinguish claims
+    based on full-text PDF reading from claims based only on metadata or abstracts.
+  expected_output: >
+    A short brief with a summary, cited key points, suggested next steps, and a
+    compact list of the sources actually retrieved.
+  agent: writer
+  context:
+    - research_task
