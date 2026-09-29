@@ -1,0 +1,112 @@
+{
+    "microsoft/phi-1_5": {
+        "mlTask": {
+            "value": "text-generation",
+            "status": "found",
+            "evidence": [
+                {
+                    "source": "hf_metadata",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "pipeline_tag: text-generation"
+                }
+            ],
+            "notes": ""
+        },
+        "modelArchitecture": {
+            "value": "decoder-only transformer",
+            "status": "found",
+            "evidence": [
+                {   
+                    "source": "hf_metadata",
+                    "url": "https://huggingface.co/microsoft/phi-1_5/blob/main/config.json",
+                    "quote": "\"architectures\": [\"PhiForCausalLM\"], \"model_type\": \"phi\""
+                },
+                {
+                    "source": "hf_modelcard",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "Architecture: a Transformer-based model with next-word prediction objective"
+                }
+            ],
+            "notes": "CausalLM + next-word prediction objective => decoder-only."
+        },
+        "parameterCount": {
+            "value": "1.42B",
+            "status": "found",
+            "evidence": [
+                {
+                    "source": "hf_metadata",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "safetensors total parameters: 1.42B"
+                },
+                {
+                    "source": "hf_modelcard",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "The language model Phi-1.5 is a Transformer with 1.3 billion parameters."
+                },
+                {
+                    "source": "publication",
+                    "url": "https://arxiv.org/abs/2309.05463",
+                    "quote": "create a new 1.3 billion parameter model named phi-1.5"
+                }
+            ],
+            "notes": "Conflict: exact count from safetensors (1.42B) vs nominal size in card and paper (1.3B). Exact metadata count preferred."
+        },
+        "baseModel": {
+            "value": null,
+            "status": "none",
+            "evidence": [
+                {
+                    "source": "hf_metadata",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "no base_model field in card metadata"
+                },
+                {
+                    "source": "hf_modelcard",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "Note that Phi-1.5, being a base model, often produces irrelevant text following the main answer."
+                }
+            ],
+            "notes": "Pretrained from scratch; this is a base model itself."
+        },
+        "trainingData": {
+            "value": [
+                "The Stack (filtered)",
+                "StackOverflow (filtered)",
+                "synthetic Python textbooks (GPT-3.5)",
+                "synthetic Python exercises",
+                "synthetic textbook-like data (~20B tokens)"
+            ],
+            "status": "found",
+            "evidence": [
+                {
+                    "source": "hf_modelcard",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "It was trained using the same data sources as phi-1, augmented with a new data source that consists of various NLP synthetic texts."
+                },
+                {
+                    "source": "publication",
+                    "url": "https://arxiv.org/abs/2309.05463",
+                    "quote": "Our training data for phi-1.5 is a combination of phi-1’s training data (7B tokens) and newly created synthetic, “textbook-like” data (roughly 20B tokens) for the purpose of teaching common sense reasoning and general knowledge of the world (science, daily activities, theory of mind, etc.)."
+                },
+                {
+                    "source": "publication",
+                    "url": "https://arxiv.org/abs/2306.11644",
+                    "quote": "A filtered code-language dataset, which is a subset of The Stack and StackOverflow, obtained by using a language model-based classifier (consisting of about 6B tokens). A synthetic textbook dataset consisting of <1B tokens of GPT-3.5 generated Python textbooks. A small synthetic exercises dataset consisting of ∼180M tokens of Python exercises and solutions."
+                }
+            ],
+            "notes": "phi-1 datasets resolved by following the reference to the phi-1 paper."
+        },
+        "trainingTokens": {
+            "value": "150B",
+            "status": "found",
+            "evidence": [
+                {
+                    "source": "hf_modelcard",
+                    "url": "https://huggingface.co/microsoft/phi-1_5",
+                    "quote": "Dataset size: 30B tokens. Training tokens: 150B tokens"
+                }
+            ],
+            "notes": "Tokens seen during training (150B), not unique dataset size (30B)."
+        }
+    }
+}
