@@ -1,0 +1,12 @@
+# ClinicalBERT: Modeling Clinical Notes and Predicting Hospital Readmission
+
+**Paper ID:** 03
+**Authors:** Kexin Huang, Jaan Altosaar, Rajesh Ranganath
+**Year:** 2019
+**Venue:** arXiv / CHIL workshop
+**DOI:** 10.48550/arXiv.1904.05342
+**Source:** https://arxiv.org/abs/1904.05342
+
+## Abstract
+
+Clinical notes contain information about patients that goes beyond structured data like lab values and medications. However, clinical notes have been underused relative to structured data, because notes are high-dimensional and sparse. This work develops and evaluates representations of clinical notes using bidirectional transformers (ClinicalBERT). ClinicalBERT uncovers high-quality relationships between medical concepts as judged by humans. ClinicalBERT outperforms baselines on 30-day hospital readmission prediction using both discharge summaries and the first few days of notes in the intensive care unit. Code and model parameters are available.

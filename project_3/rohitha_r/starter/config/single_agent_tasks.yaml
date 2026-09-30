@@ -1,0 +1,96 @@
+# Same handoff as tasks.yaml. Every step is assigned to triage_agent.
+
+relevance_task:
+  description: >
+    Question: {question}
+
+    Abstracts:
+    {abstracts}
+
+    Screen every paper. Mark KEEP only when the abstract itself helps
+    answer the question. Mark DISCARD when it does not. Give one reason
+    for each paper, using a detail a reader could find in that abstract.
+    Leave methods, datasets, and the final answer for later steps.
+  expected_output: >
+    One line per paper, in the form: title | KEEP or DISCARD | reason.
+    Every paper in the input appears exactly once.
+  agent: triage_agent
+  guardrail: >
+    Every paper has one line with KEEP or DISCARD and one reason taken
+    from the question and that abstract. The output does not summarize
+    methods or write the final answer.
+  guardrail_max_retries: 2
+
+extraction_task:
+  description: >
+    Follow the screener's KEEP and DISCARD list. Skip every DISCARD.
+    For each KEEP paper, read the full text below and record the title,
+    the method, the dataset, and the main result. Copy only what that
+    full text states. Write "not stated" for a missing field.
+
+    Full text:
+    {fulltext}
+  expected_output: >
+    One record per kept paper with title, method, dataset, and result.
+    Discarded papers are absent. A missing field contains only the words
+    "not stated". No note about validation or revisions.
+  agent: triage_agent
+  context:
+    - relevance_task
+  guardrail: >
+    Only papers marked KEEP appear. Each record has a title, method,
+    dataset, and result.     The words "not stated" are a correct value for
+    a missing field. Pass any record that uses them. Fail only when a
+    field is filled with a detail the full text does not contain.
+  guardrail_max_retries: 2
+
+contradiction_task:
+  description: >
+    Question: {question}
+
+    Compare the extracted notes using the full text below. A conflict is
+    two papers making opposite claims about the same point. For each
+    conflict, name both papers and quote both claims from the full text.
+    Different tasks, different metrics, or a paper that never mentions
+    the point are not conflicts. If nothing conflicts, say "No disagreement."
+
+    Full text:
+    {fulltext}
+  expected_output: >
+    Either the line "No disagreement." or a list of conflicts. Each
+    conflict names both papers and both claims about the same point.
+  agent: triage_agent
+  context:
+    - extraction_task
+  guardrail: >
+    A conflict names both papers and both claims about the same point.
+    Different topics, or a paper that never mentions the point, are not
+    listed as conflicts. When the notes do not conflict, the output says
+    "No disagreement."
+  guardrail_max_retries: 2
+
+synthesis_task:
+  description: >
+    Answer this question: {question}
+
+    Use the extracted notes, the contradiction notes, and the full text
+    below. Cite the paper title for every claim. Mention each paper
+    once. If the contradiction notes list a conflict, state both sides
+    with their citations and do not pick a winner. If they say
+    "No disagreement.", do not invent one.
+
+    Full text:
+    {fulltext}
+  expected_output: >
+    A short answer to the question. Every claim cites a paper title from
+    the notes, each paper appears once, and any disagreement states both
+    sides.
+  agent: triage_agent
+  context:
+    - extraction_task
+    - contradiction_task
+  guardrail: >
+    Every claim cites a paper title from the notes. Each paper appears
+    once. A disagreement states both sides and does not pick a winner.
+    The answer does not add a finding that the notes do not contain.
+  guardrail_max_retries: 2
