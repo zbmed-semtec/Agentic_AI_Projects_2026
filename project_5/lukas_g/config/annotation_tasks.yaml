@@ -31,8 +31,41 @@ annotate_model_tasks:
     uploaded checkpoint. A generic architecture name or a paper that only shares a broad topic
     does not meet this standard.
 
-    This task is limited to the ML task annotation only. Do not infer, add, or edit any other
-    model properties. Rate confidence with exactly one of three levels: HIGH means direct,
+    Also enrich these four existing string properties when directly supported by record-specific
+    evidence: parameterCount, baseModel, trainingData, and trainingTokens. For parameterCount and
+    trainingTokens, provide only an explicitly documented count; do not estimate from model size,
+    architecture, or dataset size. baseModel must identify an explicitly documented pretrained
+    or parent model, not just the model architecture. trainingData may contain documented dataset
+    name(s) and/or source URL(s), but a mere reference or unrelated publication must not be
+    presented as training data. Leave a field blank when its value cannot be established. Never
+    overwrite an existing non-empty value. Use write_model_metadata for these fields. For every
+    supplied property, provide its own confidence level (MEDIUM or HIGH only), source actually
+    consulted, and reasoning that explains the evidence for that specific value. Save these under
+    modelMetadataAnnotations keyed by the exact property name. Store the task's confidence, source,
+    reasoning, and publicationSearch object at modelMetadataAnnotations.mlTask, in the
+    same object as the four property annotations. Never create a top-level mlTaskAnnotation
+    property. Use the exact nested key "mlTask", not "mlTaskAnnotation". For example, the shape
+    is modelMetadataAnnotations: {"mlTask": {"confidence": "HIGH", "source": "...",
+    "reasoning": "..."}, "baseModel": {"confidence": "HIGH", "source": "...",
+    "reasoning": "..."}}. Other optional entries are "trainingData", "parameterCount", and
+    "trainingTokens".
+    For every property to annotate, including mlTask and these four metadata fields, if preliminary
+    confidence is MEDIUM or LOW, call search_publications before finalizing, passing the exact
+    modelId and a query explicitly covering that property (task, parameter count, base/pretrained
+    model, training dataset, or training-token count). Review the results and reassess that
+    property's confidence. Do not reuse one generic rationale or source for multiple properties
+    unless it independently supports each one. This metadata enrichment is independent of task
+    confidence: perform it even if mlTask remains unresolved, whenever direct evidence is available.
+    The metadata tool must not be used to change any other property.
+
+    For each MEDIUM-confidence metadata value, pass a field-specific publication_search_summary
+    to write_model_metadata and store publicationSearch {query, summary} in that field's
+    modelMetadataAnnotations entry. A metadata MEDIUM search may not be substituted by a search
+    only about the ML task or another property. LOW-confidence values are never written; leave
+    the property blank if evidence remains insufficient. HIGH-confidence values supported by
+    direct record evidence do not require a search.
+
+    Rate confidence with exactly one of three levels: HIGH means direct,
     unambiguous, consistent evidence identifies the task; MEDIUM means evidence supports a task
     but has remaining uncertainty; LOW means evidence is insufficient, conflicting, or does not
     establish an ML task. Before finalizing any preliminary MEDIUM or LOW rating, call
@@ -48,9 +81,10 @@ annotate_model_tasks:
     results as evidence. Reassess the confidence after searching: it may become HIGH, remain
     MEDIUM, or remain LOW.
 
-    For each record, set only mlTask to exactly one current Hugging Face task ID from
+    For the task annotation, set only mlTask to exactly one current Hugging Face task ID from
     list_huggingface_tasks, and store its confidence, optional source, and reasoning in
-    mlTaskAnnotation. Do not put prose, examples, domains, or multiple IDs in mlTask. Never call
+    modelMetadataAnnotations.mlTask. Do not put prose, examples, domains, or multiple IDs
+    in mlTask. Never call
     write_model_mltask with LOW confidence; LOW annotations must not be added to the records.
     For MEDIUM, call write_model_mltask only after the model-specific publication search has
     completed, and provide a concise publication_search_summary describing its findings and
@@ -58,7 +92,7 @@ annotate_model_tasks:
     HIGH does not require a publication search when direct record evidence is sufficient. Supply
     the exact modelId, task ID, confidence level, reasoning linking evidence to the task, and a
     source actually consulted when applicable. Existing valid task IDs must never be changed. If
-    a valid ID lacks valid mlTaskAnnotation metadata, add metadata only when evidence supports
+    a valid ID lacks valid modelMetadataAnnotations.mlTask metadata, add metadata only when evidence supports
     that same ID. Replace a legacy non-catalog mlTask value only when the intended task is
     confidently established. Leave a record LOW only when evidence remains insufficient after
     the required search or indicates that it does not perform an ML task; do not guess merely to
@@ -67,9 +101,16 @@ annotate_model_tasks:
     unresolved, with the reason for each unresolved record.
   expected_output: >
     An exhaustive report covering every model record, including the total number reviewed and
-    modelIds. For each annotated record, report its single valid mlTask ID and mlTaskAnnotation
-    confidence level, source when applicable, reasoning, and for MEDIUM confidence the publication
-    search query and findings summary. List records already complete and unresolved records
+    modelIds. For each annotated record, report its single valid mlTask ID and
+    modelMetadataAnnotations.mlTask confidence level, source when applicable, reasoning,
+    and for MEDIUM confidence the publication search query and findings summary. For each
+    MEDIUM-confidence metadata property, include its property-scoped publication search query and
+    findings summary as well as confidence, source, and reasoning. List records already complete and unresolved records
     separately, with reasons. Confirm LOW-confidence records were not written, and that no
-    properties other than mlTask and its mlTaskAnnotation metadata were changed.
+    properties other than mlTask and modelMetadataAnnotations (containing mlTask,
+    parameterCount, baseModel, trainingData, and trainingTokens) were changed. For each record,
+    also report which of the four additional
+    metadata fields were populated or left blank due to insufficient evidence. For the task and
+    each populated metadata field, include its confidence, source, and reasoning from
+    modelMetadataAnnotations.
   agent: model_task_annotator

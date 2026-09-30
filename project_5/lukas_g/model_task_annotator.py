@@ -5,7 +5,11 @@ from crewai.project import CrewBase, agent, crew, llm, task, tool
 
 from starter.llm import local_llm
 from starter.tools.hf_task_taxonomy import ListHuggingFaceTasksTool
-from starter.tools.model_data_tools import ReadSampledModelsTool, WriteModelMLTaskTool
+from starter.tools.model_data_tools import (
+    ReadSampledModelsTool,
+    WriteModelMetadataTool,
+    WriteModelMLTaskTool,
+)
 from starter.tools.publication_tools import ReadPublicationPDFTool, SearchPublicationsTool
 
 
@@ -31,6 +35,10 @@ class ModelTaskAnnotatorCrew:
     @tool
     def write_model_mltask(self):
         return WriteModelMLTaskTool()
+
+    @tool
+    def write_model_metadata(self):
+        return WriteModelMetadataTool()
 
     @tool
     def search_publications(self):

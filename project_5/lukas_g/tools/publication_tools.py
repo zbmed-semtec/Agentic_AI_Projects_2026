@@ -33,8 +33,8 @@ class SearchPublicationsInput(BaseModel):
         default=None,
         max_length=300,
         description=(
-            "For model-task annotation, the exact modelId this search concerns. Include it "
-            "to satisfy the MEDIUM-confidence publication-search requirement."
+            "The exact modelId this search concerns. Include it to satisfy the MEDIUM-confidence "
+            "publication-search requirement for the task or a specific model metadata property."
         ),
     )
 
@@ -44,9 +44,9 @@ class SearchPublicationsTool(BaseTool):
     description: str = (
         "Search Crossref and arXiv for real scholarly publications. Returns titles, "
         "authors, dates, abstracts when available, DOI/source links, and direct PDF "
-        "links when available. For an annotation search, include the exact modelId so "
-        "the write tool can require a completed search for MEDIUM confidence. Use the "
-        "returned links as evidence; do not invent sources."
+        "links when available. For an annotation search, include the exact modelId and target "
+        "property in the query so the write tool can require a completed, property-relevant "
+        "search for MEDIUM confidence. Use the returned links as evidence; do not invent sources."
     )
     args_schema: Type[BaseModel] = SearchPublicationsInput
 
