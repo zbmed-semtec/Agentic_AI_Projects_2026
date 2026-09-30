@@ -1,0 +1,12 @@
+[project]
+name = "dissify-exploration-agent"
+version = "0.1.0"
+description = "Autonomous Agentic AI for Historical Dissertation Exploration, Terminology Bridging, and Page-Level Grounded Evidence Extraction"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain>=0.3.0",
+    "langchain-community>=0.3.0",
+    "langchain-ollama>=0.2.0",
+    "rich>=13.7.0",
+]
