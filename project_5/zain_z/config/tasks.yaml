@@ -1,0 +1,72 @@
+extract_task:
+  description: >
+    Find the property "{property}" of the Hugging Face model "{model_id}".
+
+    What it means: {hint}
+
+    Check these sources in this order: {sources}
+
+    After each source, decide:
+    - If the source states the value directly, it is about {model_id} itself, and it
+      does not just refer to another model or source for it, stop calling tools and
+      answer with confident = true.
+    - Otherwise, move on to the next source.
+    If no source states it directly, answer with the best value you found and confident = false,
+    or with value = null if you found nothing. If the best you found is a reference to
+    another model (e.g. that it uses the same data as an earlier model), give that
+    reference as the value, with confident = false.
+
+    The value is the property itself in as few words as possible: a name, a number
+    or a short term. Never an explanation or a sentence.
+
+    Back the value with evidence. Each evidence item has the source (one of: metadata,
+    card, paper), the url of the page or paper, and one quote: one continuous passage
+    copied exactly from the tool output (a sentence, or a metadata field with its
+    value). If one passage is not enough, add several evidence items; never join
+    passages into one quote.
+  expected_output: >
+    value, evidence (a list of source, url, quote), confident.
+
+reference_task:
+  description: >
+    You get the answer found for the property "{property}" of "{model_id}".
+
+    For the value, and every item if it is a list, answer one question: does this item
+    only point to another model's {property} instead of stating a value of its own?
+    For example "the same as model X" or "X's {property}". A model name that is itself
+    the answer (e.g. the name of a base model) is not a pointer.
+
+    List only the items that are pointers. For each, copy the item exactly as it is
+    written in the value, and give the name of the model it points to.
+    If there are none, return an empty list.
+  expected_output: >
+    references: a list of item and model, possibly empty.
+
+sources:
+  metadata: the Hugging Face metadata (hf_metadata tool)
+  card: the model card (hf_modelcard tool)
+  paper: >
+    the model's paper (find it with fetch_paper_local, or fetch_paper_api if none
+    is linked, then read it with retrieve_paper_from_arxiv)
+
+hints:
+  mlTask: >
+    The task the model performs, as its Hugging Face pipeline tag.
+  modelArchitecture: >
+    The model's architecture as the source names it.
+    A class name such as LlamaForCausalLM does not state the architecture, and neither do
+    the metadata's architectures and model_type fields: they are code identifiers.
+  parameterCount: >
+    The total number of parameters of this exact model (not its base model or a
+    sibling of a different size), written as a number with an M or B suffix,
+    rounded to two decimals. The metadata's safetensors_total_params is an exact
+    count and states it directly. Prefer an exact count over a rounded figure.
+  baseModel: >
+    The model this one was fine-tuned or otherwise derived from, as its Hugging Face
+    repo id or name. If a source says the model was trained from scratch or is itself
+    a base model, the value is none.
+  trainingData: >
+    All datasets the source lists as used to train this model, as a list of dataset names.
+  trainingTokens: >
+    The total number of tokens the model saw during training (not the size of the
+    dataset), written as a number with a B or T suffix.

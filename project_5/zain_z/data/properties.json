@@ -1,0 +1,8 @@
+{
+    "mlTask" : ["metadata", "card"],
+    "modelArchitecture" : ["metadata", "card", "paper"],
+    "parameterCount" : ["metadata", "card", "paper"],
+    "baseModel": ["metadata", "card", "paper"],
+    "trainingData": ["metadata", "card", "paper"],
+    "trainingTokens": ["card", "paper"]
+}
